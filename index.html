@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+</head>
+<body onload="menuwizard()">
+    <select id="menu" onchange="menuwizard()">
+        <option value="1">진수 변환기 - Base converter</option>
+        <option value="2">계산기 - Calculator</option>
+        <option value="3">공학용 계산기 - Scientific Calculator</option>
+    </select>
+    <br>
+    <select id="calor" class="Def">
+        <option value="1">더하기 - plus</option>
+        <option value="2">빼기 - minus</option>
+        <option value="3">나누기 - division</option>
+        <option value="4">곱하기 - multiplication</option>
+        <option value="5">제곱 - square</option>
+    </select>
+    <select id="base" class="Deci">
+        <option value="2">2진수 - binary</option>
+        <option value="8">8진수 - Octal</option>
+        <option value="12">12진수 - Duodecimal</option>
+        <option value="16">16진수 - Hexadecimal</option>
+        <option value="20">20진수 - Vigesimal</option>
+    </select>
+    <select id="Scalor" class="Sci">
+        <option value="1">제곱근 - root</option>
+        <option value="2">팩토리얼 - factorial</option>
+        <option value="3">자연로그 - logₑ</option>
+        <option value="4">상용로그 - log₁₀</option>
+        <option value="5">사인 - sin</option>
+        <option value="6">코사인 - cos</option>
+        <option value="7">탄젠트 - tan</option>
+    </select>
+    <br class="Def">
+    <label class="Def">계산되는 수 - first number : <input type="number" id="n1" class="Def"></input></label>
+    <br class="Def">
+    <label class="Def">계산하는 수 - second number : <input type="number" id="n2" class="Def"></input></label>
+    <br class="Deci">
+    <label class="Deci">변환할 수 : <input type="number" id="Dn1" class="Deci"></input></label><br>
+
+    <label class="Sci">계산할 수 : <input type="number" id="Sn1" class="Sci"></input></label><br>
+    <button onclick="wizard()">계산 - Calculate</button>
+    <script>
+        async function asdf() {
+            let op = document.getElementById("calor").value;
+            let n1 = document.getElementById("n1").value;
+            let n2 = document.getElementById("n2").value;
+
+            let sendData = {
+                CC: parseInt(op),
+                N1: Number(n1),
+                N2: Number(n2)
+            };
+            let reponce = await fetch('http://localhost:8080/api/calculate', {method: 'POST', headers: {"Content-Type": "application/json"}, body: JSON.stringify(sendData)});
+            let jso = await reponce.json(); //아몰랑 철자는 틀려도 돼ㅋ
+            let output = jso.Result;
+            if (output == -140520 || output == null) {
+                alert("0으로 나눌 수 없습니다.");
+            } else {
+                alert(output);
+            }
+        }
+        async function DeciC() {
+            let cc = document.getElementById('base').value;
+            let Dn1 = document.getElementById('Dn1').value;
+            let sendData = {
+                CC: parseInt(cc),
+                N1: Number(Dn1)
+            };
+            let Dreponce = await fetch('http://localhost:8081/api/DeciC', {method: 'POST', headers: {"Content-Type": "application/json"}, body: JSON.stringify(sendData)});
+            let Djso = await Dreponce.json();
+            let output = Djso.Result;
+            alert(output);
+        }
+        async function SciC() {
+            let cc = document.getElementById('Scalor').value;
+            let Sn1 = document.getElementById('Sn1').value;
+            let sendData = {
+                CC: parseInt(cc),
+                N1: Number(Sn1)
+            };
+            let Sreponce = await fetch('http://localhost:8082/api/Sci', {method: 'POST', headers: {"Content-Type": "application/json"}, body: JSON.stringify(sendData)});
+            let Sjso = await Sreponce.json();
+            let output = Sjso.Result;
+            switch (output) {
+                case -140521:
+                    alert("음수의 제곱근은 허수입니다.");
+                    break
+                case -140522:
+                    alert("음수의 팩토리얼은 정의되지 않습니다.");
+                    break
+                case -140523:
+                    alert("음수나 0의 로그는 정의되지 않습니다.");
+                    break
+                case -140524:
+                    alert("90의 홀수 배수 각도일 때 tan은 정의되지 않습니다.")
+                    break
+                default:
+                    alert(output)
+                    break
+            }
+        }
+
+        function wizard() {
+            if (document.getElementById('menu').value == '1') {
+                DeciC()
+            } else if (document.getElementById('menu').value == '2') {
+                asdf()
+            } else {
+                SciC()
+            }
+        }
+        function menuwizard() {
+            let chest = document.getElementById('menu');
+            let currentmenu = chest.value;
+            let DeciItem = document.querySelectorAll(".Deci");
+            let CalcItem = document.querySelectorAll(".Def");
+            let SciItem = document.querySelectorAll(".Sci");
+            if (currentmenu == 1) {
+                CalcItem.forEach(function(item) {
+                    item.style.display = "none";
+                });
+                DeciItem.forEach(function(item) {
+                    item.style.display = "";
+                });
+                SciItem.forEach(function(item) {
+                    item.style.display = "none";
+                });
+            } else if (currentmenu == 2) {
+                CalcItem.forEach(function(item) {
+                    item.style.display = "";
+                });
+                DeciItem.forEach(function(item) {
+                    item.style.display = "none";
+                });
+                SciItem.forEach(function(item) {
+                    item.style.display = "none";
+                });
+            } else {
+                CalcItem.forEach(function(item) {
+                    item.style.display = "none";
+                });
+                DeciItem.forEach(function(item) {
+                    item.style.display = "none";
+                });
+                SciItem.forEach(function(item) {
+                    item.style.display = "";
+                });
+            }
+        }
+    </script>
+</body>
+</html>
